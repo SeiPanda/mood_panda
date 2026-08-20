@@ -1,0 +1,113 @@
+<div class="page">
+  <h1>Habit Tracker</h1>
+
+  <div class="toolbar">
+    <button type="button" class="edit-mode-btn" (click)="toggleShowWeekdays()">
+      <mat-icon>{{ showWeekdays() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      {{ showWeekdays() ? 'Wochentage ausblenden' : 'Wochentage anzeigen' }}
+    </button>
+    <button type="button" class="edit-mode-btn" (click)="toggleEditMode()">
+      <mat-icon>{{ editMode() ? 'done' : 'edit' }}</mat-icon>
+      {{ editMode() ? 'Fertig' : 'Themen bearbeiten' }}
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="habit-table">
+      <thead>
+        <tr>
+          <th class="topic-col">Thema</th>
+          @for (day of days; track day) {
+            <th class="day-col" [class.today]="day === currentDay">
+              <button
+                type="button"
+                class="day-header-btn"
+                (click)="openDiaryEntry(day)"
+                [attr.aria-label]="(hasDiaryEntry(day) ? 'Tagebucheintrag öffnen für Tag ' : 'Tagebucheintrag anlegen für Tag ') + day"
+              >
+                @if (hasDiaryEntry(day)) {
+                  <span class="entry-dot"></span>
+                }
+                <span class="day-info">
+                  @if (showWeekdays()) {
+                    <span class="weekday-label">{{ weekdayLabel(day) }}</span>
+                  }
+                  <span class="day-number">{{ day }}</span>
+                </span>
+                <span class="day-action">
+                  <mat-icon [class.entry-icon]="hasDiaryEntry(day)">{{ hasDiaryEntry(day) ? 'description' : 'add' }}</mat-icon>
+                </span>
+              </button>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (habit of habits(); track habit.id) {
+          <tr>
+            <td class="topic-col">
+              @if (editMode()) {
+                <div class="topic-edit">
+                  <app-habit-color-picker
+                    [color]="habit.color"
+                    (colorChange)="updateHabitColor(habit.id, $event)"
+                  />
+                  <input
+                    class="topic-input"
+                    type="text"
+                    [value]="habit.name"
+                    #editInput
+                    (keyup.enter)="editInput.blur()"
+                    (blur)="renameHabit(habit.id, editInput.value)"
+                  />
+                  <button type="button" class="icon-btn remove-btn" (click)="removeHabit(habit.id)" title="Entfernen">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              } @else {
+                <span class="topic-name">{{ habit.name }}</span>
+              }
+            </td>
+            @for (day of days; track day) {
+              <td class="day-col" [class.today]="day === currentDay">
+                <button
+                  type="button"
+                  class="check-circle"
+                  [class.checked]="isChecked(habit.id, day)"
+                  [style.--habit-color]="habit.color"
+                  [attr.aria-pressed]="isChecked(habit.id, day)"
+                  [attr.aria-label]="habit.name + ' Tag ' + day"
+                  (click)="toggleCheck(habit.id, day)"
+                ></button>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="days.length + 1" class="empty-row">
+              Noch keine Themen. Füge unten ein neues hinzu.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (editMode()) {
+    <div class="add-habit">
+      <input
+        type="text"
+        placeholder="Neues Thema hinzufügen"
+        [(ngModel)]="newHabitName"
+        (keyup.enter)="addHabit()"
+      />
+      <app-habit-color-picker
+        [color]="newHabitColor()"
+        (colorChange)="newHabitColor.set($event)"
+      />
+      <button type="button" (click)="addHabit()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  }
+</div>

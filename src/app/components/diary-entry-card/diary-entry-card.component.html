@@ -1,0 +1,25 @@
+<div class="entry-card-header">
+  <div class="entry-card-main">
+    <div class="entry-date">{{ formattedDate() }}</div>
+    <div class="entry-title">{{ entry().title || '(Ohne Titel)' }}</div>
+  </div>
+  <div class="entry-card-actions">
+    <button type="button" class="icon-btn edit-entry-btn" (click)="onEdit($event)" title="Bearbeiten">
+      <mat-icon>edit</mat-icon>
+    </button>
+    @if (canExpand()) {
+      <button
+        type="button"
+        class="icon-btn expand-btn"
+        (click)="onToggleExpand($event)"
+        [title]="expanded() ? 'Einklappen' : 'Ausklappen'"
+      >
+        <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+    }
+  </div>
+</div>
+@if (entry().text) {
+  <div class="entry-preview">{{ entry().text }}</div>
+  <div class="entry-preview entry-preview--probe" #probeEl aria-hidden="true">{{ entry().text }}</div>
+}

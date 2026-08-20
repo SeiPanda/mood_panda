@@ -1,0 +1,35 @@
+:root {
+
+        --primary: #5f0c16;
+
+  --akzentColor: #333333;
+    --secondary: #dd919d;
+    --light-text: #dd919d;
+    --medium-text: #dd919d;
+    --heavy-text: #dd919d;
+    --nav-title: #dd919d;
+    --medium-background: #F3F3FB;
+    --light-background: #F8F9FB;
+    --page-background: #dd919d7a;
+    --surface: #f8fafb;
+    --surface-colored: #f3fbff;
+    --surface-selected: #e8f7ff;
+    --warning: #ff8080;
+    --warning-lightened: #ff4d4d;
+    --gradient: linear-gradient(100deg, rgba(161,220,176,1) 0%, rgba(188,231,166,1) 51%, rgba(213,242,157,1) 100%);
+    --nav-text-shadow: 0px 4px 4px hsl(0deg 0% 0% / 21%);
+    --box-shadow: 5px 5px 8px 0px hsla(0, 0%, 0%, 0.21) ;
+  --mdc-text-button-label-text-color: #fff;
+  --mdc-text-button-disabled-label-text-color: rgba(255, 255, 255, .5);
+  --mat-text-button-state-layer-color: #fff;
+  --mat-text-button-hover-state-layer-opacity: .08;
+  --mat-text-button-focus-state-layer-opacity: .24;
+  --mat-text-button-pressed-state-layer-opacity: .24;
+  --persistent-ripple-color: #fff;
+  --ripple-color: rgba(255, 255, 255, 0.1);
+  --rating: goldenrod;
+  --rating-fade: #daa52033;
+  --rating-theme: var(--primary);
+  --rating-theme-fade: rgba(161, 220, 176, 0.18);
+
+}

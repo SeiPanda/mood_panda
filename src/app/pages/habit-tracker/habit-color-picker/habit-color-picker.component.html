@@ -1,0 +1,9 @@
+<span class="color-swatch-btn" [style.--swatch-color]="color()" title="Farbe ändern">
+  <input
+    type="color"
+    [value]="color()"
+    (input)="onNativeColorInput($event)"
+    [attr.aria-label]="'Farbe ändern'"
+  />
+  <mat-icon>palette</mat-icon>
+</span>

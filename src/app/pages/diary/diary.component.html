@@ -1,0 +1,87 @@
+<div class="page">
+  <h1>Tagebuch</h1>
+
+  <div class="diary-header">
+    @if (view() !== 'years') {
+      <button type="button" class="icon-btn back-btn" (click)="goBack()" title="Zurück">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    }
+    <h2 class="diary-heading">{{ heading() }}</h2>
+    @if (view() !== 'list') {
+      <button type="button" class="icon-btn add-btn" (click)="toggleAddForm()" title="Hinzufügen">
+        <mat-icon>add</mat-icon>
+      </button>
+    }
+  </div>
+
+  @if (showAddForm() && view() === 'years') {
+    <div class="add-form">
+      <input
+        type="number"
+        placeholder="Jahr"
+        [(ngModel)]="newYearValue"
+        (keyup.enter)="confirmAddYear()"
+      />
+      <button type="button" (click)="confirmAddYear()">
+        <mat-icon>check</mat-icon>
+      </button>
+    </div>
+  }
+
+  @if (showAddForm() && view() === 'months') {
+    <div class="add-form">
+      <select [(ngModel)]="newMonthValue">
+        <option value="" disabled selected>Monat wählen</option>
+        @for (month of addableMonths(); track month) {
+          <option [value]="month">{{ monthName(month) }}</option>
+        }
+      </select>
+      <button type="button" (click)="confirmAddMonth()">
+        <mat-icon>check</mat-icon>
+      </button>
+    </div>
+  }
+
+  @if (view() === 'years') {
+    @if (years().length === 0) {
+      <p class="empty-state">Noch keine Jahre vorhanden. Füge oben eines über das Add-Icon hinzu.</p>
+    } @else {
+      <div class="tile-grid">
+        @for (year of years(); track year) {
+          <button type="button" class="tile" (click)="openYear(year)">{{ year }}</button>
+        }
+      </div>
+    }
+  }
+
+  @if (view() === 'months') {
+    @if (months().length === 0) {
+      <p class="empty-state">Noch keine Monate vorhanden. Füge oben einen über das Add-Icon hinzu.</p>
+    } @else {
+      <div class="tile-grid">
+        @for (month of months(); track month) {
+          <button type="button" class="tile" (click)="openMonth(month)">{{ monthName(month) }}</button>
+        }
+      </div>
+    }
+  }
+
+  @if (view() === 'list') {
+    @if (monthEntries().length === 0) {
+      <p class="empty-state">Noch keine Einträge in diesem Monat. Klicke im Habit Tracker auf einen Wochentag, um einen Eintrag zu erstellen.</p>
+    } @else {
+      <ul class="entry-list">
+        @for (entry of monthEntries(); track entry.date) {
+          <li
+            app-diary-entry-card
+            [entry]="entry"
+            [expanded]="expandedDate() === entry.date"
+            (toggleExpand)="toggleExpand(entry.date)"
+            (edit)="editEntry(entry.date)"
+          ></li>
+        }
+      </ul>
+    }
+  }
+</div>

@@ -1,0 +1,29 @@
+@if (isOpen()) {
+  <div class="diary-overlay-backdrop" (click)="close()">
+    <div class="diary-overlay-panel" (click)="$event.stopPropagation()">
+      <div class="diary-overlay-date">{{ displayDate() }}</div>
+
+      <input
+        class="diary-title-input"
+        type="text"
+        placeholder="Titel"
+        [(ngModel)]="title"
+      />
+
+      <textarea
+        class="diary-text-input"
+        placeholder="Was ist heute passiert?"
+        [(ngModel)]="text"
+      ></textarea>
+
+      <div class="diary-overlay-actions">
+        <button type="button" class="icon-btn close-btn" (click)="close()" title="Schließen">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button type="button" class="icon-btn save-btn" (click)="save()" title="Speichern">
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}

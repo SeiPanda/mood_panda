@@ -1,1 +1,189 @@
-/* You can add global styles to this file, and also import other style files */
+@use './app/styles/variables';
+
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  width: 100%;
+}
+
+body
+{
+  margin: 0;
+      background-color: var(--page-background);
+
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.page > h1 {
+  color: var(--primary);
+}
+
+.mat-elevation-z4 {
+  box-shadow: 0px 2px 5px 0px rgb(0 0 0 / 17%), 0px 4px 8px 0px rgb(0 0 0 / 0%), 0px 1px 20px 3px rgb(0 0 0 / 8%);
+}
+
+mat-icon {
+  color: var(--nav-title) !important;
+
+}
+
+a:hover{
+  background: rgba(255, 255, 255, 0.247)
+
+}
+
+/* Change the border focused color */
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
+.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: var(--primary) !important;
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--primary) !important
+}
+
+fa-icon {
+  color: var(--nav-title) !important;
+  text-shadow: var(--nav-text-shadow) !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background,
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled ~ .mdc-checkbox__background  {
+  border-color: var(--primary) !important;
+  background-color: var(--primary) !important;
+
+}
+
+.mat-mdc-checkbox-ripple .mat-ripple-element, .mdc-checkbox__ripple,
+.mat-mdc-checkbox-checked.mat-accent .mdc-checkbox-background {
+  background-color: transparent !important;
+  border-color: var(--primary) !important;
+
+}
+
+footer {
+  padding: 12px;
+  font-size: 12px;
+  background-color: var(--primary);
+
+  // background: var(--gradient);
+
+  .footer-list {
+    align-items: center;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 8px;
+
+    .footer_item {
+      color: var(--nav-title);
+      font-size: 16px;
+    }
+
+    #left {
+      flex: 1;
+
+    }
+
+    mat-icon {
+      display: flex;
+      flex-direction: column;
+      align-self: flex-end;
+      text-align: center;
+    }
+
+    #middle {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+
+    #right {
+      display: flex;
+      flex: 1;
+      justify-content: flex-end;
+      flex-direction: column;
+      min-width: 225px;
+    }
+  }
+}
+
+header {
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 1rem 1rem;
+
+  h1 {
+
+    // font-weight: 300;
+    margin: 0 !important;
+    color: var(--nav-title);
+    font-size: 20px;
+    text-shadow: var(--nav-text-shadow);
+    margin-right: 0.5rem !important;
+  }
+
+  button {
+    display: flex !important;
+    padding-right: 0 !important;
+    justify-content: flex-end !important;
+    align-items: center;
+  }
+
+
+  .active {
+    background: rgba(255, 255, 255, 0.247)
+  }
+
+  a {
+    text-shadow: var(--nav-text-shadow) !important;
+    color: var(--nav-title);
+    font-size: 18px !important;
+  }
+}
+
+
+.mdc-list-item{
+  color: black !important;
+
+}
+
+.mdc-list-item__primary-text {
+  color: black !important;
+}
+
+.mat-mdc-subheader {
+  color: black;
+}
+
+.mat-expansion-panel-header-title{
+  color: black;
+}
+
+
+button[mat-icon-button]{
+  $large-size-button: 70px;
+  $large-size-icon: 45px;
+  
+      &.icon-button-large {
+        width: $large-size-button;
+        height: $large-size-button;
+        line-height: $large-size-button;
+      .mat-icon {
+        font-size: $large-size-icon;
+        width: $large-size-icon;
+        height: $large-size-icon;
+        line-height: $large-size-icon;
+      }
+      .mat-button-ripple {
+        font-size: inherit;
+        width: inherit;
+        height: inherit;
+        line-height: inherit;
+      }
+    }
+  }

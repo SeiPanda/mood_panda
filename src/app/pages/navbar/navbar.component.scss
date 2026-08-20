@@ -1,0 +1,56 @@
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--primary);
+  z-index: 2;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 4px 16px;
+  .flex-spacer {
+      flex-grow: 1;
+  }
+
+  > a:first-child {
+    padding-left: 0 !important;
+  }
+}
+
+a {
+  text-shadow: var(--nav-text-shadow) !important;
+  color: var(--nav-title);
+  font-size: 18px !important;
+  img {
+    height: 40px;
+    aspect-ratio: auto 32 / 32;
+    width: 40px;
+  }
+}
+
+
+.title {
+  color: var(--nav-title) !important;
+  fa-icon {
+    margin-right: 0.25rem;
+  }
+}
+
+
+.navButton {
+  text-shadow: var(--nav-text-shadow) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center;
+}
+
+.mat-mdc-button, .mat-mdc-icon-button{
+  color: #fff !important;
+  --mat-mdc-button-ripple-color: var(--ripple-color) !important;
+  --mat-mdc-button-persistent-ripple-color: var(--persistent-ripple-color) !important;
+}
+
