@@ -20,24 +20,7 @@ const STORAGE_KEY = 'habit-tracker-data';
 const SHOW_WEEKDAYS_KEY = 'habit-tracker-show-weekdays';
 
 const WEEKDAY_LABELS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-
-function randomHabitColor(): string {
-  const hue = Math.floor(Math.random() * 360);
-  return hslToHex(hue, 65, 45);
-}
-
-function hslToHex(h: number, s: number, l: number): string {
-  s /= 100;
-  l /= 100;
-  const k = (n: number) => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-  const toHex = (x: number) =>
-    Math.round(255 * x)
-      .toString(16)
-      .padStart(2, '0');
-  return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
-}
+const DEFAULT_HABIT_COLOR = '#4c8bf5';
 
 @Component({
   selector: 'app-habit-tracker',
@@ -50,25 +33,43 @@ export class HabitTrackerComponent {
   private readonly diaryOverlayService = inject(DiaryOverlayService);
 
   private readonly today = new Date();
-  protected readonly monthKey = `${this.today.getFullYear()}-${this.today.getMonth()}`;
-  protected readonly daysInMonth = new Date(
-    this.today.getFullYear(),
-    this.today.getMonth() + 1,
-    0,
-  ).getDate();
-  protected readonly days = Array.from({ length: this.daysInMonth }, (_, i) => i + 1);
-  protected readonly currentDay = this.today.getDate();
+
+  private readonly viewDate = signal(
+    new Date(this.today.getFullYear(), this.today.getMonth(), 1),
+  );
+
+  private readonly year = computed(() => this.viewDate().getFullYear());
+  private readonly month = computed(() => this.viewDate().getMonth());
+
+  private readonly monthKey = computed(() => `${this.year()}-${this.month()}`);
+  private readonly daysInMonth = computed(() =>
+    new Date(this.year(), this.month() + 1, 0).getDate(),
+  );
+  protected readonly days = computed(() =>
+    Array.from({ length: this.daysInMonth() }, (_, i) => i + 1),
+  );
+  protected readonly isCurrentMonth = computed(
+    () =>
+      this.year() === this.today.getFullYear() && this.month() === this.today.getMonth(),
+  );
+  protected readonly currentDay = computed(() =>
+    this.isCurrentMonth() ? this.today.getDate() : -1,
+  );
+  protected readonly monthLabel = computed(() =>
+    this.viewDate().toLocaleDateString('de-DE', { month: 'long' }),
+  );
 
   protected readonly showWeekdays = signal(this.loadShowWeekdays());
 
-  protected readonly habits = signal<Habit[]>(this.loadData().habits);
+  private readonly initialData = this.loadData();
+  protected readonly habits = signal<Habit[]>(this.initialData.habits);
   private readonly checksByMonth = signal<Record<string, Record<string, boolean[]>>>(
-    this.loadData().checks,
+    this.initialData.checks,
   );
-  protected readonly checks = computed(() => this.checksByMonth()[this.monthKey] ?? {});
+  protected readonly checks = computed(() => this.checksByMonth()[this.monthKey()] ?? {});
 
   protected readonly editMode = signal(false);
-  protected readonly newHabitColor = signal('#ffffff');
+  protected readonly newHabitColor = signal(DEFAULT_HABIT_COLOR);
   protected newHabitName = '';
 
   constructor() {
@@ -97,12 +98,27 @@ export class HabitTrackerComponent {
   }
 
   weekdayLabel(day: number): string {
-    const weekday = new Date(this.today.getFullYear(), this.today.getMonth(), day).getDay();
+    const weekday = new Date(this.year(), this.month(), day).getDay();
     return WEEKDAY_LABELS[weekday];
   }
 
+  prevMonth() {
+    this.viewDate.update((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  }
+
+  nextMonth() {
+    if (this.isCurrentMonth()) {
+      return;
+    }
+    this.viewDate.update((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  }
+
+  goToCurrentMonth() {
+    this.viewDate.set(new Date(this.today.getFullYear(), this.today.getMonth(), 1));
+  }
+
   private dateKeyForDay(day: number): string {
-    return toDateKey(new Date(this.today.getFullYear(), this.today.getMonth(), day));
+    return toDateKey(new Date(this.year(), this.month(), day));
   }
 
   hasDiaryEntry(day: number): boolean {
@@ -126,7 +142,7 @@ export class HabitTrackerComponent {
       const parsed = JSON.parse(raw) as HabitTrackerData;
       const habits = (parsed.habits ?? []).map((h) => ({
         ...h,
-        color: h.color ?? randomHabitColor(),
+        color: h.color ?? DEFAULT_HABIT_COLOR,
       }));
       return { habits, checks: parsed.checks ?? {} };
     } catch {
@@ -135,7 +151,7 @@ export class HabitTrackerComponent {
   }
 
   private checksForHabit(habitId: string): boolean[] {
-    return this.checks()[habitId] ?? new Array(this.daysInMonth).fill(false);
+    return this.checks()[habitId] ?? new Array(this.daysInMonth()).fill(false);
   }
 
   isChecked(habitId: string, day: number): boolean {
@@ -143,11 +159,13 @@ export class HabitTrackerComponent {
   }
 
   toggleCheck(habitId: string, day: number) {
-    const monthChecks = { ...this.checksByMonth() };
+    const key = this.monthKey();
     const habitChecks = [...this.checksForHabit(habitId)];
     habitChecks[day - 1] = !habitChecks[day - 1];
-    monthChecks[this.monthKey] = { ...monthChecks[this.monthKey], [habitId]: habitChecks };
-    this.checksByMonth.set(monthChecks);
+    this.checksByMonth.update((monthChecks) => ({
+      ...monthChecks,
+      [key]: { ...monthChecks[key], [habitId]: habitChecks },
+    }));
   }
 
   addHabit() {
@@ -158,7 +176,7 @@ export class HabitTrackerComponent {
     const habit: Habit = { id: crypto.randomUUID(), name, color: this.newHabitColor() };
     this.habits.update((habits) => [...habits, habit]);
     this.newHabitName = '';
-    this.newHabitColor.set('#ffffff');
+    this.newHabitColor.set(DEFAULT_HABIT_COLOR);
   }
 
   updateHabitColor(habitId: string, color: string) {

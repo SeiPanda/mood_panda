@@ -1,6 +1,28 @@
 <div class="page">
   <h1>Habit Tracker</h1>
 
+  <div class="month-nav">
+    <button type="button" class="month-nav-btn" (click)="prevMonth()" aria-label="Vorheriger Monat">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="month-label">{{ monthLabel() }}</span>
+    <button
+      type="button"
+      class="month-nav-btn"
+      (click)="nextMonth()"
+      [disabled]="isCurrentMonth()"
+      aria-label="Nächster Monat"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    @if (!isCurrentMonth()) {
+      <button type="button" class="today-btn" (click)="goToCurrentMonth()">
+        <mat-icon>today</mat-icon>
+        Aktueller Monat
+      </button>
+    }
+  </div>
+
   <div class="toolbar">
     <button type="button" class="edit-mode-btn" (click)="toggleShowWeekdays()">
       <mat-icon>{{ showWeekdays() ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -17,8 +39,8 @@
       <thead>
         <tr>
           <th class="topic-col">Thema</th>
-          @for (day of days; track day) {
-            <th class="day-col" [class.today]="day === currentDay">
+          @for (day of days(); track day) {
+            <th class="day-col" [class.today]="day === currentDay()">
               <button
                 type="button"
                 class="day-header-btn"
@@ -68,8 +90,8 @@
                 <span class="topic-name">{{ habit.name }}</span>
               }
             </td>
-            @for (day of days; track day) {
-              <td class="day-col" [class.today]="day === currentDay">
+            @for (day of days(); track day) {
+              <td class="day-col" [class.today]="day === currentDay()">
                 <button
                   type="button"
                   class="check-circle"
@@ -84,7 +106,7 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="days.length + 1" class="empty-row">
+            <td [attr.colspan]="days().length + 1" class="empty-row">
               Noch keine Themen. Füge unten ein neues hinzu.
             </td>
           </tr>
