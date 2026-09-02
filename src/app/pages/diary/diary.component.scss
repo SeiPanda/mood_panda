@@ -39,8 +39,59 @@
     color: var(--primary) !important;
   }
 
+  &.back-btn mat-icon {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 600,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+
   &:hover {
     background: rgba(0, 0, 0, 0.06);
+  }
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.month-nav-btn,
+.today-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 6px 12px;
+  font: inherit;
+  color: var(--heavy-text);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--heavy-text) !important;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
+.month-nav-btn {
+  padding: 4px;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: auto;
   }
 }
 

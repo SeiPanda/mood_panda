@@ -2,9 +2,14 @@
   <h1>Tagebuch</h1>
 
   <div class="diary-header">
-    @if (view() !== 'years') {
-      <button type="button" class="icon-btn back-btn" (click)="goBack()" title="Zurück">
-        <mat-icon>arrow_back</mat-icon>
+    @if (view() === 'months') {
+      <button type="button" class="icon-btn back-btn" (click)="goBack()" title="Zur Jahresübersicht">
+        <mat-icon fontSet="material-symbols-outlined">view_cozy</mat-icon>
+      </button>
+    }
+    @if (view() === 'list') {
+      <button type="button" class="icon-btn back-btn" (click)="goBack()" title="Zur Monatsübersicht">
+        <mat-icon fontSet="material-symbols-outlined">view_cozy</mat-icon>
       </button>
     }
     <h2 class="diary-heading">{{ heading() }}</h2>
@@ -14,6 +19,52 @@
       </button>
     }
   </div>
+
+  @if (view() === 'months') {
+    <div class="month-nav">
+      <button type="button" class="month-nav-btn" (click)="prevYear()" aria-label="Vorheriges Jahr">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="month-nav-btn"
+        (click)="nextYear()"
+        [disabled]="isCurrentYear()"
+        aria-label="Nächstes Jahr"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      @if (!isCurrentYear()) {
+        <button type="button" class="today-btn" (click)="goToCurrentYear()">
+          <mat-icon>today</mat-icon>
+          Aktuelles Jahr
+        </button>
+      }
+    </div>
+  }
+
+  @if (view() === 'list') {
+    <div class="month-nav">
+      <button type="button" class="month-nav-btn" (click)="prevMonth()" aria-label="Vorheriger Monat">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="month-nav-btn"
+        (click)="nextMonth()"
+        [disabled]="isCurrentMonth()"
+        aria-label="Nächster Monat"
+      >
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      @if (!isCurrentMonth()) {
+        <button type="button" class="today-btn" (click)="goToCurrentMonth()">
+          <mat-icon>today</mat-icon>
+          Aktueller Monat
+        </button>
+      }
+    </div>
+  }
 
   @if (showAddForm() && view() === 'years') {
     <div class="add-form">

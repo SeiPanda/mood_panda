@@ -32,9 +32,20 @@ export class DiaryComponent {
   private readonly diaryService = inject(DiaryService);
   private readonly overlayService = inject(DiaryOverlayService);
 
+  private readonly today = new Date();
+
   protected readonly view = signal<DiaryView>('list');
-  protected readonly selectedYear = signal(new Date().getFullYear());
-  protected readonly selectedMonth = signal(new Date().getMonth() + 1);
+  protected readonly selectedYear = signal(this.today.getFullYear());
+  protected readonly selectedMonth = signal(this.today.getMonth() + 1);
+
+  protected readonly isCurrentYear = computed(
+    () => this.selectedYear() === this.today.getFullYear(),
+  );
+  protected readonly isCurrentMonth = computed(
+    () =>
+      this.selectedYear() === this.today.getFullYear() &&
+      this.selectedMonth() === this.today.getMonth() + 1,
+  );
 
   protected readonly showAddForm = signal(false);
   protected newYearValue = '';
@@ -88,6 +99,53 @@ export class DiaryComponent {
     } else if (this.view() === 'months') {
       this.view.set('years');
     }
+    this.showAddForm.set(false);
+  }
+
+  prevYear() {
+    this.selectedYear.update((y) => y - 1);
+    this.showAddForm.set(false);
+  }
+
+  nextYear() {
+    if (this.isCurrentYear()) {
+      return;
+    }
+    this.selectedYear.update((y) => y + 1);
+    this.showAddForm.set(false);
+  }
+
+  goToCurrentYear() {
+    this.selectedYear.set(this.today.getFullYear());
+    this.showAddForm.set(false);
+  }
+
+  prevMonth() {
+    if (this.selectedMonth() === 1) {
+      this.selectedMonth.set(12);
+      this.selectedYear.update((y) => y - 1);
+    } else {
+      this.selectedMonth.update((m) => m - 1);
+    }
+    this.showAddForm.set(false);
+  }
+
+  nextMonth() {
+    if (this.isCurrentMonth()) {
+      return;
+    }
+    if (this.selectedMonth() === 12) {
+      this.selectedMonth.set(1);
+      this.selectedYear.update((y) => y + 1);
+    } else {
+      this.selectedMonth.update((m) => m + 1);
+    }
+    this.showAddForm.set(false);
+  }
+
+  goToCurrentMonth() {
+    this.selectedYear.set(this.today.getFullYear());
+    this.selectedMonth.set(this.today.getMonth() + 1);
     this.showAddForm.set(false);
   }
 
