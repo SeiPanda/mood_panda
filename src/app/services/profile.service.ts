@@ -10,7 +10,11 @@ export interface Profile {
   icon: string;
 }
 
+/** Fields the user is allowed to change from the edit dialog. */
+export type ProfileEdit = Partial<Pick<Profile, 'name' | 'icon'>>;
+
 const ACTIVE_KEY = 'active-profile';
+const PROFILES_KEY = 'profiles';
 
 /**
  * Storage keys that existed before profiles. On first run they are moved into
@@ -24,12 +28,29 @@ const LEGACY_KEYS = [
 ];
 
 /**
- * The available profiles. Kept as a static list for now; a later backend
- * connection can replace this with data fetched per authenticated user.
+ * The default profiles. Used to seed {@link ProfileService.profiles} on first
+ * run; afterwards the (possibly edited) list is read from localStorage. A later
+ * backend connection can replace this with data fetched per authenticated user.
  */
-export const PROFILES: Profile[] = [
+export const DEFAULT_PROFILES: Profile[] = [
   { id: 'me', name: 'Ich', icon: 'face_4' },
   { id: 'partner', name: 'Partner', icon: 'face' },
+];
+
+/** Icons offered in the profile edit dialog. */
+export const PROFILE_ICONS = [
+  'face',
+  'face_2',
+  'face_3',
+  'face_4',
+  'face_5',
+  'face_6',
+  'sentiment_satisfied',
+  'mood',
+  'self_improvement',
+  'favorite',
+  'pets',
+  'star',
 ];
 
 /**
@@ -42,10 +63,10 @@ export const PROFILES: Profile[] = [
  */
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
-  readonly profiles = PROFILES;
+  readonly profiles = signal<Profile[]>(this.loadProfiles());
   readonly activeId = signal<ProfileId>(this.loadActiveId());
   readonly active = computed(
-    () => this.profiles.find((p) => p.id === this.activeId()) ?? this.profiles[0],
+    () => this.profiles().find((p) => p.id === this.activeId()) ?? this.profiles()[0],
   );
 
   constructor() {
@@ -54,7 +75,7 @@ export class ProfileService {
 
   /** Moves pre-profile storage keys into the default profile's namespace, once. */
   private migrateLegacyKeys() {
-    const target = PROFILES[0].id;
+    const target = DEFAULT_PROFILES[0].id;
     for (const key of LEGACY_KEYS) {
       const value = localStorage.getItem(key);
       const scoped = `${key}::${target}`;
@@ -71,7 +92,7 @@ export class ProfileService {
   }
 
   setActive(id: ProfileId) {
-    if (id === this.activeId() || !this.profiles.some((p) => p.id === id)) {
+    if (id === this.activeId() || !this.profiles().some((p) => p.id === id)) {
       return;
     }
     this.activeId.set(id);
@@ -81,8 +102,42 @@ export class ProfileService {
     location.reload();
   }
 
+  /** Updates a profile's display name and/or icon and persists the change. */
+  updateProfile(id: ProfileId, changes: ProfileEdit) {
+    const name = changes.name?.trim();
+    this.profiles.update((profiles) =>
+      profiles.map((p) =>
+        p.id === id
+          ? { ...p, ...(name ? { name } : {}), ...(changes.icon ? { icon: changes.icon } : {}) }
+          : p,
+      ),
+    );
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(this.profiles()));
+  }
+
+  private loadProfiles(): Profile[] {
+    const raw = localStorage.getItem(PROFILES_KEY);
+    if (!raw) {
+      return DEFAULT_PROFILES.map((p) => ({ ...p }));
+    }
+    try {
+      const parsed = JSON.parse(raw) as Profile[];
+      // Keep the fixed set of profile ids; only name/icon are user-editable.
+      return DEFAULT_PROFILES.map((base) => {
+        const stored = parsed.find((p) => p.id === base.id);
+        return {
+          id: base.id,
+          name: stored?.name?.trim() || base.name,
+          icon: stored?.icon || base.icon,
+        };
+      });
+    } catch {
+      return DEFAULT_PROFILES.map((p) => ({ ...p }));
+    }
+  }
+
   private loadActiveId(): ProfileId {
     const raw = localStorage.getItem(ACTIVE_KEY);
-    return raw && PROFILES.some((p) => p.id === raw) ? raw : PROFILES[0].id;
+    return raw && DEFAULT_PROFILES.some((p) => p.id === raw) ? raw : DEFAULT_PROFILES[0].id;
   }
 }

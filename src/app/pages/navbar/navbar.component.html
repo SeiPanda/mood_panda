@@ -1,19 +1,57 @@
 <div>
   <nav class="navbar">
-    <a mat-button routerLink="/"><div class="title">Pandournal</div></a>
+    <a mat-button routerLink="/">
+      <div class="title">
+        <span class="title-owner">{{ active().name }}&rsquo;s</span> Pandournal
+      </div>
+    </a>
     <div class="flex-spacer"></div>
-    <div class="profile-switch">
-      @for (profile of profiles; track profile.id) {
-        <button
-          type="button"
-          class="profile-btn"
-          [class.active]="profile.id === activeId()"
-          [attr.aria-pressed]="profile.id === activeId()"
-          [title]="profile.name"
-          (click)="switchProfile(profile.id)"
-        >
-          <mat-icon fontSet="material-symbols-outlined">{{ profile.icon }}</mat-icon>
-        </button>
+
+    <div class="settings">
+      <button
+        type="button"
+        class="settings-btn"
+        [class.active]="settingsOpen()"
+        [attr.aria-expanded]="settingsOpen()"
+        aria-haspopup="menu"
+        title="Einstellungen"
+        (click)="toggleSettings()"
+      >
+        <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
+      </button>
+
+      @if (settingsOpen()) {
+        <div class="settings-backdrop" (click)="closeSettings()"></div>
+        <div class="settings-menu" role="menu">
+          <div class="settings-menu-label">Profil wechseln</div>
+          @for (profile of profiles(); track profile.id) {
+            <button
+              type="button"
+              class="settings-menu-item"
+              role="menuitemradio"
+              [attr.aria-checked]="profile.id === activeId()"
+              (click)="switchProfile(profile.id)"
+            >
+              <mat-icon fontSet="material-symbols-outlined">{{ profile.icon }}</mat-icon>
+              <span class="settings-menu-item-text">{{ profile.name }}</span>
+              @if (profile.id === activeId()) {
+                <mat-icon class="check">check</mat-icon>
+              }
+            </button>
+          }
+
+          <div class="settings-menu-divider"></div>
+
+          <button
+            type="button"
+            class="settings-menu-item"
+            role="menuitem"
+            (click)="editActiveProfile()"
+          >
+            <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+            <span class="settings-menu-item-text">Profil bearbeiten</span>
+          </button>
+        </div>
       }
     </div>
   </nav>

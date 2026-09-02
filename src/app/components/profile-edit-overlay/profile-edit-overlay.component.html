@@ -1,0 +1,45 @@
+@if (isOpen()) {
+  <div class="profile-overlay-backdrop" (click)="close()">
+    <div class="profile-overlay-panel" (click)="$event.stopPropagation()">
+      <div class="profile-overlay-title">Profil bearbeiten</div>
+
+      <label class="field-label" for="profile-name">Name</label>
+      <input
+        id="profile-name"
+        class="profile-name-input"
+        type="text"
+        placeholder="Name"
+        [(ngModel)]="name"
+      />
+
+      <div class="field-label">Icon</div>
+      <div class="icon-grid">
+        @for (option of icons; track option) {
+          <button
+            type="button"
+            class="icon-option"
+            [class.selected]="option === icon"
+            (click)="selectIcon(option)"
+          >
+            <mat-icon fontSet="material-symbols-outlined">{{ option }}</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="profile-overlay-actions">
+        <button type="button" class="icon-btn close-btn" (click)="close()" title="Abbrechen">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-btn save-btn"
+          (click)="save()"
+          [disabled]="!name.trim()"
+          title="Speichern"
+        >
+          <mat-icon>check</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}

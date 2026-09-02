@@ -40,14 +40,25 @@ a {
   }
 }
 
-
-.profile-switch {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.title-owner {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--nav-title);
+  font-weight: 700;
+  text-transform: capitalize;
 }
 
-.profile-btn {
+
+.settings {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -59,7 +70,7 @@ a {
   background: transparent;
   color: var(--nav-title);
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 0.7;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 
   mat-icon {
@@ -69,13 +80,84 @@ a {
   }
 
   &:hover {
-    opacity: 0.8;
+    opacity: 1;
     background-color: var(--ripple-color);
   }
 
   &.active {
     opacity: 1;
     background-color: rgba(255, 255, 255, 0.16);
+  }
+}
+
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+}
+
+.settings-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 4;
+  min-width: 220px;
+  padding: 6px;
+  background: var(--surface, #fff);
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-menu-label {
+  padding: 8px 10px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+}
+
+.settings-menu-divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--page-background);
+}
+
+.settings-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--akzentColor);
+  font: inherit;
+  text-align: left;
+
+  mat-icon {
+    color: var(--primary) !important;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .settings-menu-item-text {
+    flex: 1;
+  }
+
+  .check {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: var(--surface-selected, #e8f7ff);
   }
 }
 

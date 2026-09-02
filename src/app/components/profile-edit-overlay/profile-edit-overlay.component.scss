@@ -1,0 +1,114 @@
+.profile-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 16px;
+}
+
+.profile-overlay-panel {
+  background: var(--surface, #fff);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-overlay-title {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.field-label {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.profile-name-input {
+  font: inherit;
+  font-size: 1.05rem;
+  border: none;
+  border-bottom: 1px solid var(--page-background);
+  padding: 4px 0;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--primary);
+  }
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.icon-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: var(--page-background);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  mat-icon {
+    color: var(--primary) !important;
+  }
+
+  &:hover {
+    background: var(--surface-selected, #e8f7ff);
+  }
+
+  &.selected {
+    border-color: var(--primary);
+    background: var(--surface-selected, #e8f7ff);
+  }
+}
+
+.profile-overlay-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  mat-icon {
+    color: #fff !important;
+  }
+
+  &.close-btn {
+    background: var(--secondary);
+  }
+
+  &.save-btn {
+    background: var(--primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
