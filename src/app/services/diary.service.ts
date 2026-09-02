@@ -1,4 +1,5 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { ProfileService } from './profile.service';
 
 export interface DiaryEntry {
   date: string;
@@ -24,6 +25,15 @@ export function toDateKey(date: Date): string {
 
 @Injectable({ providedIn: 'root' })
 export class DiaryService {
+  private readonly profile = inject(ProfileService);
+
+  // Captured once. Switching profiles triggers a full page reload, so the
+  // scoped keys never change during a session. If they stayed reactive, the
+  // persistence effects below would re-run on switch and write the current
+  // profile's in-memory data into the newly selected profile's key.
+  private readonly storageKey = this.profile.scopedKey(STORAGE_KEY);
+  private readonly extraPeriodsKey = this.profile.scopedKey(EXTRA_PERIODS_KEY);
+
   private readonly entriesMap = signal<Record<string, DiaryEntry>>(this.loadEntries());
   private readonly extraPeriods = signal<ExtraPeriods>(this.loadExtraPeriods());
 
@@ -41,10 +51,10 @@ export class DiaryService {
 
   constructor() {
     effect(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.entriesMap()));
+      localStorage.setItem(this.storageKey, JSON.stringify(this.entriesMap()));
     });
     effect(() => {
-      localStorage.setItem(EXTRA_PERIODS_KEY, JSON.stringify(this.extraPeriods()));
+      localStorage.setItem(this.extraPeriodsKey, JSON.stringify(this.extraPeriods()));
     });
 
     const now = new Date();
@@ -85,7 +95,7 @@ export class DiaryService {
   }
 
   private loadEntries(): Record<string, DiaryEntry> {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(this.storageKey);
     if (!raw) {
       return {};
     }
@@ -97,7 +107,7 @@ export class DiaryService {
   }
 
   private loadExtraPeriods(): ExtraPeriods {
-    const raw = localStorage.getItem(EXTRA_PERIODS_KEY);
+    const raw = localStorage.getItem(this.extraPeriodsKey);
     if (!raw) {
       return { years: [], months: {} };
     }

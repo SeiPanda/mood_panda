@@ -2,5 +2,19 @@
   <nav class="navbar">
     <a mat-button routerLink="/"><div class="title">Pandournal</div></a>
     <div class="flex-spacer"></div>
+    <div class="profile-switch">
+      @for (profile of profiles; track profile.id) {
+        <button
+          type="button"
+          class="profile-btn"
+          [class.active]="profile.id === activeId()"
+          [attr.aria-pressed]="profile.id === activeId()"
+          [title]="profile.name"
+          (click)="switchProfile(profile.id)"
+        >
+          <mat-icon fontSet="material-symbols-outlined">{{ profile.icon }}</mat-icon>
+        </button>
+      }
+    </div>
   </nav>
 </div>

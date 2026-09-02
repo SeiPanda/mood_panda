@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HabitColorPickerComponent } from './habit-color-picker/habit-color-picker.component';
 import { DiaryService, toDateKey } from '../../services/diary.service';
 import { DiaryOverlayService } from '../../services/diary-overlay.service';
+import { ProfileService } from '../../services/profile.service';
 
 interface Habit {
   id: string;
@@ -31,6 +32,13 @@ const DEFAULT_HABIT_COLOR = '#4c8bf5';
 export class HabitTrackerComponent {
   private readonly diaryService = inject(DiaryService);
   private readonly diaryOverlayService = inject(DiaryOverlayService);
+  private readonly profile = inject(ProfileService);
+
+  // Captured once. Switching profiles reloads the page, so these keys never
+  // change during a session; keeping them reactive would make the save
+  // effects copy the current profile's data into the newly selected one.
+  private readonly storageKey = this.profile.scopedKey(STORAGE_KEY);
+  private readonly showWeekdaysKey = this.profile.scopedKey(SHOW_WEEKDAYS_KEY);
 
   private readonly today = new Date();
 
@@ -78,15 +86,15 @@ export class HabitTrackerComponent {
         habits: this.habits(),
         checks: this.checksByMonth(),
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
     });
     effect(() => {
-      localStorage.setItem(SHOW_WEEKDAYS_KEY, JSON.stringify(this.showWeekdays()));
+      localStorage.setItem(this.showWeekdaysKey, JSON.stringify(this.showWeekdays()));
     });
   }
 
   private loadShowWeekdays(): boolean {
-    const raw = localStorage.getItem(SHOW_WEEKDAYS_KEY);
+    const raw = localStorage.getItem(this.showWeekdaysKey);
     if (raw === null) {
       return true;
     }
@@ -134,7 +142,7 @@ export class HabitTrackerComponent {
   }
 
   private loadData(): HabitTrackerData {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(this.storageKey);
     if (!raw) {
       return { habits: [], checks: {} };
     }

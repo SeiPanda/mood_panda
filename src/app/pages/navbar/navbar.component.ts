@@ -1,7 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { ProfileService, ProfileId } from '../../services/profile.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent {
+  private readonly profileService = inject(ProfileService);
+
+  readonly profiles = this.profileService.profiles;
+  readonly activeId = this.profileService.activeId;
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     const currentWidth = event.target.innerWidth;
@@ -18,6 +24,10 @@ export class NavbarComponent {
     }
   }
   toggle: boolean = false;
+
+  switchProfile(id: ProfileId) {
+    this.profileService.setActive(id);
+  }
 
   triggerSideNav() {
     this.toggle = !this.toggle;
