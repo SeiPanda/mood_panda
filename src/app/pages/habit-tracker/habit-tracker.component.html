@@ -1,4 +1,25 @@
 <div class="page">
+  <nav class="subnav">
+    <button
+      type="button"
+      class="subnav-tab"
+      [class.active]="view() === 'tracker'"
+      (click)="setView('tracker')"
+    >
+      <mat-icon>calendar_month</mat-icon>
+      <span>Tracker</span>
+    </button>
+    <button
+      type="button"
+      class="subnav-tab"
+      [class.active]="view() === 'analysis'"
+      (click)="setView('analysis')"
+    >
+      <mat-icon>insights</mat-icon>
+      <span>Auswertung</span>
+    </button>
+  </nav>
+
   <h1>Habit Tracker</h1>
 
   <div class="month-nav">
@@ -23,6 +44,7 @@
     }
   </div>
 
+  @if (view() === 'tracker') {
   <div class="toolbar">
     <button type="button" class="edit-mode-btn" (click)="toggleShowWeekdays()">
       <mat-icon>{{ showWeekdays() ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -130,6 +152,139 @@
       <button type="button" (click)="addHabit()">
         <mat-icon>add</mat-icon>
       </button>
+    </div>
+  }
+  } @else {
+    <div class="analysis">
+      <div class="toolbar">
+        <button type="button" class="edit-mode-btn" (click)="toggleChartType()">
+          <mat-icon>{{ chartType() === 'bars' ? 'donut_large' : 'bar_chart' }}</mat-icon>
+          {{ chartType() === 'bars' ? 'Kreisdiagramm' : 'Balken' }}
+        </button>
+        <button
+          type="button"
+          class="edit-mode-btn"
+          [class.pressed]="showComparison()"
+          (click)="toggleComparison()"
+        >
+          <mat-icon>compare_arrows</mat-icon>
+          Vormonat
+        </button>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-value">{{ monthlyTotals().percent }}%</span>
+        <span class="summary-label">
+          {{ monthlyTotals().count }} / {{ monthlyTotals().possible }} Haken · {{ monthLabel() }}
+        </span>
+        @if (showComparison()) {
+          <span
+            class="stat-delta"
+            [class.up]="monthlyTotals().delta > 0"
+            [class.down]="monthlyTotals().delta < 0"
+          >
+            {{ monthlyTotals().delta > 0 ? '+' : '' }}{{ monthlyTotals().delta }} ggü. {{ prevMonthLabel() }}
+          </span>
+        }
+      </div>
+
+      @if (monthlyStats().length === 0) {
+        <p class="empty-row">Noch keine Themen. Lege im Tab „Tracker“ eins an.</p>
+      } @else if (chartType() === 'bars') {
+        <div class="stat-list">
+          @for (stat of monthlyStats(); track stat.id) {
+            <div class="stat-row">
+              <div class="stat-head">
+                <span class="stat-name">{{ stat.name }}</span>
+                <span class="stat-count">
+                  {{ stat.count }}× · {{ stat.percent }}%
+                  @if (showComparison()) {
+                    <span
+                      class="stat-delta"
+                      [class.up]="stat.delta > 0"
+                      [class.down]="stat.delta < 0"
+                    >{{ stat.delta > 0 ? '+' : '' }}{{ stat.delta }}</span>
+                  }
+                </span>
+              </div>
+              <div class="stat-bar">
+                <div
+                  class="stat-bar-fill"
+                  [style.width.%]="stat.percent"
+                  [style.background]="stat.color"
+                ></div>
+                @if (showComparison()) {
+                  <div class="stat-bar-prev" [style.width.%]="stat.prevPercent"></div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (selectedStat(); as sel) {
+        <div class="donut-chart">
+          <div class="donut-switch">
+            <button
+              type="button"
+              class="month-nav-btn"
+              (click)="prevHabit()"
+              [disabled]="sel.total < 2"
+              aria-label="Vorheriges Thema"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span class="donut-title">{{ sel.name }}</span>
+            <button
+              type="button"
+              class="month-nav-btn"
+              (click)="nextHabit()"
+              [disabled]="sel.total < 2"
+              aria-label="Nächstes Thema"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+
+          <svg class="donut" viewBox="0 0 48 48" aria-hidden="true">
+            <circle class="donut-track" cx="24" cy="24" r="20" />
+            <circle
+              class="donut-seg"
+              cx="24"
+              cy="24"
+              r="20"
+              stroke-linecap="round"
+              [style.stroke]="sel.color"
+              [style.stroke-dasharray]="sel.dashArray"
+            />
+            <text x="24" y="22" class="donut-text">{{ sel.percent }}%</text>
+            <text x="24" y="30" class="donut-sub">{{ sel.count }}×</text>
+          </svg>
+
+          @if (showComparison()) {
+            <div
+              class="stat-delta donut-compare"
+              [class.up]="sel.delta > 0"
+              [class.down]="sel.delta < 0"
+            >
+              {{ sel.delta > 0 ? '+' : '' }}{{ sel.delta }} ggü. {{ prevMonthLabel() }}
+              ({{ sel.prevCount }}×)
+            </div>
+          }
+
+          <div class="donut-dots">
+            @for (stat of monthlyStats(); track stat.id; let i = $index) {
+              <button
+                type="button"
+                class="donut-dot"
+                [class.active]="i === sel.index"
+                [style.background]="stat.color"
+                [attr.aria-label]="stat.name"
+                [attr.aria-pressed]="i === sel.index"
+                (click)="selectHabit(i)"
+              ></button>
+            }
+          </div>
+        </div>
+      }
     </div>
   }
 </div>

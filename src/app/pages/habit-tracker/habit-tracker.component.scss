@@ -13,6 +13,270 @@ h1 {
   }
 }
 
+.subnav {
+  display: flex;
+  gap: 4px;
+  margin: -16px -16px 16px;
+  padding: 0 16px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--page-background);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    margin: -12px -12px 12px;
+    padding: 0 12px;
+  }
+}
+
+.subnav-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 12px 18px;
+  margin-bottom: -2px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--akzentColor);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  &:hover:not(.active) {
+    color: var(--primary);
+  }
+
+  @media (max-width: 600px) {
+    flex: 1 0 auto;
+    padding: 12px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+.analysis {
+  .toolbar {
+    margin-bottom: 12px;
+  }
+
+  .edit-mode-btn.pressed {
+    outline: 2px solid var(--secondary);
+    outline-offset: 1px;
+  }
+
+  .summary-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    background: #fff;
+    border-radius: 10px;
+  }
+
+  .summary-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+  }
+
+  .summary-label {
+    color: var(--medium-text);
+    font-size: 0.9rem;
+  }
+
+  .stat-delta {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--medium-text);
+
+    &.up {
+      color: #2e7d32;
+    }
+
+    &.down {
+      color: var(--warning-lightened);
+    }
+  }
+
+  .summary-card .stat-delta {
+    margin-left: auto;
+  }
+
+  /* --- compact bar list --- */
+  .stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-row {
+    padding: 8px 12px;
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  .stat-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .stat-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stat-count {
+    color: var(--medium-text);
+    white-space: nowrap;
+  }
+
+  .stat-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--page-background);
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 999px;
+    min-width: 2px;
+  }
+
+  .stat-bar-prev {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-right: 2px dashed var(--akzentColor);
+  }
+
+  /* --- single donut, steppable per habit --- */
+  .donut-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 14px;
+    background: #fff;
+    border-radius: 10px;
+  }
+
+  .donut-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .donut-title {
+    min-width: 120px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .donut {
+    width: 132px;
+    height: 132px;
+  }
+
+  .donut-track {
+    fill: none;
+    stroke: var(--page-background);
+    stroke-width: 6;
+  }
+
+  .donut-seg {
+    fill: none;
+    stroke-width: 6;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke-dasharray 0.35s ease;
+  }
+
+  .donut-text {
+    fill: var(--primary);
+    font-size: 9px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  .donut-sub {
+    fill: var(--medium-text);
+    font-size: 5px;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  .donut-compare {
+    font-size: 0.85rem;
+  }
+
+  .donut-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .donut-dot {
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+
+    &.active {
+      opacity: 1;
+      transform: scale(1.25);
+      box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px currentColor;
+    }
+  }
+
+  .empty-row {
+    padding: 16px;
+    color: var(--medium-text);
+  }
+}
+
 .month-nav {
   display: flex;
   align-items: center;

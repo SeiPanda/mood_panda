@@ -23,6 +23,22 @@ const SHOW_WEEKDAYS_KEY = 'habit-tracker-show-weekdays';
 const WEEKDAY_LABELS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const DEFAULT_HABIT_COLOR = '#4c8bf5';
 
+// Donut circles are drawn with r=20 in the template's 48x48 viewBox.
+const DONUT_CIRCUMFERENCE = 2 * Math.PI * 20;
+
+function countTrue(checks: boolean[] | undefined, limit: number): number {
+  if (!checks) {
+    return 0;
+  }
+  let count = 0;
+  for (let i = 0; i < limit && i < checks.length; i++) {
+    if (checks[i]) {
+      count++;
+    }
+  }
+  return count;
+}
+
 @Component({
   selector: 'app-habit-tracker',
   imports: [FormsModule, MatIconModule, HabitColorPickerComponent],
@@ -66,6 +82,15 @@ export class HabitTrackerComponent {
   protected readonly monthLabel = computed(() =>
     this.viewDate().toLocaleDateString('de-DE', { month: 'long' }),
   );
+  protected readonly prevMonthLabel = computed(() =>
+    new Date(this.year(), this.month() - 1, 1).toLocaleDateString('de-DE', {
+      month: 'long',
+    }),
+  );
+
+  protected readonly view = signal<'tracker' | 'analysis'>('tracker');
+  protected readonly showComparison = signal(false);
+  protected readonly chartType = signal<'bars' | 'donut'>('bars');
 
   protected readonly showWeekdays = signal(this.loadShowWeekdays());
 
@@ -75,6 +100,83 @@ export class HabitTrackerComponent {
     this.initialData.checks,
   );
   protected readonly checks = computed(() => this.checksByMonth()[this.monthKey()] ?? {});
+
+  // Days of the viewed month that already have data: the whole month for past
+  // months, only the days up to today for the current one. Used so the
+  // previous-month comparison covers the same window.
+  private readonly trackedDays = computed(() =>
+    this.isCurrentMonth() ? this.today.getDate() : this.daysInMonth(),
+  );
+
+  private readonly prevMonthKey = computed(() => {
+    const y = this.year();
+    const m = this.month();
+    return m === 0 ? `${y - 1}-11` : `${y}-${m - 1}`;
+  });
+
+  private readonly prevChecks = computed(
+    () => this.checksByMonth()[this.prevMonthKey()] ?? {},
+  );
+
+  protected readonly monthlyStats = computed(() => {
+    const checks = this.checks();
+    const prevChecks = this.prevChecks();
+    // Percentages are always relative to the whole month, per habit.
+    const monthDays = this.daysInMonth();
+    // The previous-month delta only compares the days that have elapsed, so a
+    // month in progress isn't measured against a full one.
+    const window = this.trackedDays();
+    return this.habits().map((habit) => {
+      const count = countTrue(checks[habit.id], monthDays);
+      const windowCount = countTrue(checks[habit.id], window);
+      const prevCount = countTrue(prevChecks[habit.id], window);
+      return {
+        id: habit.id,
+        name: habit.name,
+        color: habit.color,
+        count,
+        percent: monthDays > 0 ? Math.round((count / monthDays) * 100) : 0,
+        prevCount,
+        prevPercent: monthDays > 0 ? Math.round((prevCount / monthDays) * 100) : 0,
+        delta: windowCount - prevCount,
+      };
+    });
+  });
+
+  protected readonly monthlyTotals = computed(() => {
+    const stats = this.monthlyStats();
+    const possible = stats.length * this.daysInMonth();
+    const count = stats.reduce((sum, s) => sum + s.count, 0);
+    const prevCount = stats.reduce((sum, s) => sum + s.prevCount, 0);
+    const delta = stats.reduce((sum, s) => sum + s.delta, 0);
+    return {
+      count,
+      prevCount,
+      possible,
+      percent: possible > 0 ? Math.round((count / possible) * 100) : 0,
+      delta,
+    };
+  });
+
+  // Donut view shows one habit at a time; the user steps through them.
+  protected readonly selectedHabitIndex = signal(0);
+
+  protected readonly selectedStat = computed(() => {
+    const stats = this.monthlyStats();
+    if (stats.length === 0) {
+      return null;
+    }
+    const index = Math.min(this.selectedHabitIndex(), stats.length - 1);
+    const stat = stats[index];
+    const clamped = Math.max(0, Math.min(100, stat.percent));
+    const filled = (clamped / 100) * DONUT_CIRCUMFERENCE;
+    return {
+      ...stat,
+      index,
+      total: stats.length,
+      dashArray: `${filled} ${DONUT_CIRCUMFERENCE}`,
+    };
+  });
 
   protected readonly editMode = signal(false);
   protected readonly newHabitColor = signal(DEFAULT_HABIT_COLOR);
@@ -207,6 +309,38 @@ export class HabitTrackerComponent {
 
   toggleEditMode() {
     this.editMode.update((v) => !v);
+  }
+
+  setView(view: 'tracker' | 'analysis') {
+    this.view.set(view);
+  }
+
+  toggleComparison() {
+    this.showComparison.update((v) => !v);
+  }
+
+  toggleChartType() {
+    this.chartType.update((t) => (t === 'bars' ? 'donut' : 'bars'));
+  }
+
+  prevHabit() {
+    const count = this.monthlyStats().length;
+    if (count > 0) {
+      this.selectedHabitIndex.set(
+        (this.selectedStat()!.index - 1 + count) % count,
+      );
+    }
+  }
+
+  nextHabit() {
+    const count = this.monthlyStats().length;
+    if (count > 0) {
+      this.selectedHabitIndex.set((this.selectedStat()!.index + 1) % count);
+    }
+  }
+
+  selectHabit(index: number) {
+    this.selectedHabitIndex.set(index);
   }
 
   renameHabit(habitId: string, newName: string) {
