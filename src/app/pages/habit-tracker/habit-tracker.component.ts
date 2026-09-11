@@ -212,6 +212,11 @@ export class HabitTrackerComponent {
     return WEEKDAY_LABELS[weekday];
   }
 
+  isWeekend(day: number): boolean {
+    const weekday = new Date(this.year(), this.month(), day).getDay();
+    return weekday === 0 || weekday === 6;
+  }
+
   prevMonth() {
     this.viewDate.update((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   }

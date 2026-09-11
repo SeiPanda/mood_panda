@@ -390,6 +390,10 @@ h1 {
   .day-col {
     min-width: 32px;
 
+    &.weekend {
+      background: #810c1ab8;
+    }
+
     &.today {
       background: var(--page-background);
       color: var(--primary);

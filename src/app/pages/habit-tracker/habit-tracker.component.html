@@ -113,7 +113,7 @@
               }
             </td>
             @for (day of days(); track day) {
-              <td class="day-col" [class.today]="day === currentDay()">
+              <td class="day-col" [class.today]="day === currentDay()" [class.weekend]="isWeekend(day)">
                 <button
                   type="button"
                   class="check-circle"
