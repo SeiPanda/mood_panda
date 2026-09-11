@@ -388,6 +388,7 @@ h1 {
   }
 
   .day-col {
+    position: relative;
     min-width: 32px;
 
     &.weekend {
@@ -547,6 +548,40 @@ h1 {
     @media (max-width: 600px) {
       width: 16px;
       height: 16px;
+    }
+  }
+
+  .topic-note-btn {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+
+    &.tracked {
+      opacity: 1;
+      pointer-events: auto;
+      border: 1px solid var(--habit-color);
+    }
+
+    &.has-entry {
+      opacity: 1;
+      pointer-events: auto;
+      border-color: transparent;
+      background: var(--habit-color);
+    }
+
+    &.tracked:hover,
+    &.has-entry:hover {
+      transform: scale(1.3);
     }
   }
 }

@@ -1,20 +1,79 @@
 @if (isOpen()) {
   <div class="diary-overlay-backdrop" (click)="close()">
     <div class="diary-overlay-panel" (click)="$event.stopPropagation()">
-      <div class="diary-overlay-date">{{ displayDate() }}</div>
+      <div class="diary-overlay-date">
+        @if (isTopicMode()) {
+          <button
+            type="button"
+            class="icon-btn back-inline-btn"
+            (click)="backToDay()"
+            title="Zurück zum Tageseintrag"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        }
+        <span>
+          {{ displayDate() }}
+          @if (isTopicMode()) {
+            <span class="diary-overlay-topic">· {{ topic()!.habitName }}</span>
+          }
+        </span>
+      </div>
 
-      <input
-        class="diary-title-input"
-        type="text"
-        placeholder="Titel"
-        [(ngModel)]="title"
-      />
+      @if (!isTopicMode()) {
+        <input
+          class="diary-title-input"
+          type="text"
+          placeholder="Titel"
+          [(ngModel)]="title"
+        />
+      }
 
       <textarea
         class="diary-text-input"
-        placeholder="Was ist heute passiert?"
+        [placeholder]="isTopicMode() ? 'Was ist dir zu ' + topic()!.habitName + ' aufgefallen?' : 'Was ist heute passiert?'"
         [(ngModel)]="text"
       ></textarea>
+
+      @if (!isTopicMode() && (allHabits().length > 0 || topicEntries().length > 0)) {
+        <div class="diary-topics">
+          <div class="diary-topics-header">
+            <span class="diary-topics-title">Themen-Einträge</span>
+            <button
+              type="button"
+              class="icon-btn add-topic-btn"
+              (click)="toggleTopicPicker()"
+              [disabled]="!showTopicPicker() && availableTopics().length === 0"
+              [title]="showTopicPicker() ? 'Themenauswahl schließen' : 'Thema hinzufügen'"
+            >
+              <mat-icon>{{ showTopicPicker() ? 'close' : 'add' }}</mat-icon>
+            </button>
+          </div>
+
+          @if (showTopicPicker()) {
+            @if (availableTopics().length === 0) {
+              <p class="diary-topics-empty">Für alle Themen besteht bereits ein Eintrag.</p>
+            } @else {
+              <div class="diary-topic-picker">
+                @for (h of availableTopics(); track h.id) {
+                  <button type="button" class="diary-topic-pick" (click)="pickTopic(h.id, h.name)">
+                    <span class="diary-topic-pick-dot" [style.background]="h.color"></span>
+                    {{ h.name }}
+                  </button>
+                }
+              </div>
+            }
+          }
+
+          @for (t of topicEntries(); track t.habitId) {
+            <button type="button" class="diary-topic-row" (click)="editTopic(t.habitId, t.name)">
+              <span class="diary-topic-name">{{ t.name }}</span>
+              <span class="diary-topic-preview">{{ t.text }}</span>
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      }
 
       <div class="diary-overlay-actions">
         <button type="button" class="icon-btn close-btn" (click)="close()" title="Schließen">

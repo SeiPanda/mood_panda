@@ -123,6 +123,15 @@
                   [attr.aria-label]="habit.name + ' Tag ' + day"
                   (click)="toggleCheck(habit.id, day)"
                 ></button>
+                <button
+                  type="button"
+                  class="topic-note-btn"
+                  [class.tracked]="isChecked(habit.id, day)"
+                  [class.has-entry]="hasTopicEntry(habit.id, day)"
+                  [style.--habit-color]="habit.color"
+                  [attr.aria-label]="(hasTopicEntry(habit.id, day) ? 'Eintrag öffnen: ' : 'Eintrag hinzufügen: ') + habit.name + ' Tag ' + day"
+                  (click)="openTopicEntry(habit.id, day)"
+                ></button>
               </td>
             }
           </tr>

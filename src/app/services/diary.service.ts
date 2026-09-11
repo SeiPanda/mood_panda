@@ -6,6 +6,8 @@ export interface DiaryEntry {
   title: string;
   text: string;
   updatedAt: number;
+  /** Per-habit notes for this day, keyed by habit id. */
+  topics?: Record<string, string>;
 }
 
 const STORAGE_KEY = 'diary-entries';
@@ -128,7 +130,59 @@ export class DiaryService {
   }
 
   saveEntry(dateKey: string, title: string, text: string) {
-    const entry: DiaryEntry = { date: dateKey, title, text, updatedAt: Date.now() };
-    this.entriesMap.update((map) => ({ ...map, [dateKey]: entry }));
+    this.entriesMap.update((map) => {
+      const entry: DiaryEntry = {
+        date: dateKey,
+        title,
+        text,
+        updatedAt: Date.now(),
+        topics: map[dateKey]?.topics,
+      };
+      return { ...map, [dateKey]: entry };
+    });
+  }
+
+  getTopicEntry(dateKey: string, habitId: string): string {
+    return this.entriesMap()[dateKey]?.topics?.[habitId] ?? '';
+  }
+
+  hasTopicEntry(dateKey: string, habitId: string): boolean {
+    return !!this.entriesMap()[dateKey]?.topics?.[habitId];
+  }
+
+  saveTopicEntry(dateKey: string, habitId: string, text: string) {
+    this.entriesMap.update((map) => {
+      const existing = map[dateKey];
+      const topics = { ...(existing?.topics ?? {}) };
+      if (text) {
+        topics[habitId] = text;
+      } else {
+        delete topics[habitId];
+      }
+      const entry: DiaryEntry = {
+        date: dateKey,
+        title: existing?.title ?? '',
+        text: existing?.text ?? '',
+        updatedAt: Date.now(),
+        topics: Object.keys(topics).length > 0 ? topics : undefined,
+      };
+      return { ...map, [dateKey]: entry };
+    });
+  }
+
+  /** Strips a removed habit's notes out of every diary entry that has one. */
+  removeHabitTopics(habitId: string) {
+    this.entriesMap.update((map) => {
+      const result: Record<string, DiaryEntry> = { ...map };
+      for (const [key, entry] of Object.entries(map)) {
+        if (!entry.topics || !(habitId in entry.topics)) {
+          continue;
+        }
+        const topics = { ...entry.topics };
+        delete topics[habitId];
+        result[key] = { ...entry, topics: Object.keys(topics).length > 0 ? topics : undefined };
+      }
+      return result;
+    });
   }
 }

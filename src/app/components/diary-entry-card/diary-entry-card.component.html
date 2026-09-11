@@ -2,12 +2,19 @@
   <div class="entry-card-main">
     <div class="entry-date">{{ formattedDate() }}</div>
     <div class="entry-title">{{ entry().title || '(Ohne Titel)' }}</div>
+    @if (topicTags().length > 0) {
+      <div class="entry-tags">
+        @for (tag of topicTags(); track tag.id) {
+          <span class="entry-tag">{{ tag.name }}</span>
+        }
+      </div>
+    }
   </div>
   <div class="entry-card-actions">
     <button type="button" class="icon-btn edit-entry-btn" (click)="onEdit($event)" title="Bearbeiten">
       <mat-icon>edit</mat-icon>
     </button>
-    @if (canExpand()) {
+    @if (hasMore()) {
       <button
         type="button"
         class="icon-btn expand-btn"
@@ -22,4 +29,19 @@
 @if (entry().text) {
   <div class="entry-preview">{{ entry().text }}</div>
   <div class="entry-preview entry-preview--probe" #probeEl aria-hidden="true">{{ entry().text }}</div>
+}
+@if (expanded() && topicNotes().length > 0) {
+  <div class="entry-topics" (click)="$event.stopPropagation()">
+    <div class="entry-topics-title">Themen-Einträge</div>
+    @for (t of topicNotes(); track t.habitId) {
+      <button
+        type="button"
+        class="entry-topic-row"
+        (click)="onEditTopic($event, t.habitId, t.habit.name)"
+      >
+        <span class="entry-topic-name">{{ t.habit.name }}</span>
+        <span class="entry-topic-text">{{ t.text }}</span>
+      </button>
+    }
+  </div>
 }

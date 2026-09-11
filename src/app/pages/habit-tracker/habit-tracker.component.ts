@@ -4,18 +4,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { HabitColorPickerComponent } from './habit-color-picker/habit-color-picker.component';
 import { DiaryService, toDateKey } from '../../services/diary.service';
 import { DiaryOverlayService } from '../../services/diary-overlay.service';
+import { HabitService } from '../../services/habit.service';
 import { ProfileService } from '../../services/profile.service';
 
-interface Habit {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface HabitTrackerData {
-  habits: Habit[];
-  checks: Record<string, Record<string, boolean[]>>;
-}
+type ChecksByMonth = Record<string, Record<string, boolean[]>>;
 
 const STORAGE_KEY = 'habit-tracker-data';
 const SHOW_WEEKDAYS_KEY = 'habit-tracker-show-weekdays';
@@ -48,6 +40,7 @@ function countTrue(checks: boolean[] | undefined, limit: number): number {
 export class HabitTrackerComponent {
   private readonly diaryService = inject(DiaryService);
   private readonly diaryOverlayService = inject(DiaryOverlayService);
+  private readonly habitService = inject(HabitService);
   private readonly profile = inject(ProfileService);
 
   // Captured once. Switching profiles reloads the page, so these keys never
@@ -94,11 +87,8 @@ export class HabitTrackerComponent {
 
   protected readonly showWeekdays = signal(this.loadShowWeekdays());
 
-  private readonly initialData = this.loadData();
-  protected readonly habits = signal<Habit[]>(this.initialData.habits);
-  private readonly checksByMonth = signal<Record<string, Record<string, boolean[]>>>(
-    this.initialData.checks,
-  );
+  protected readonly habits = this.habitService.habits;
+  private readonly checksByMonth = signal<ChecksByMonth>(this.loadChecks());
   protected readonly checks = computed(() => this.checksByMonth()[this.monthKey()] ?? {});
 
   // Days of the viewed month that already have data: the whole month for past
@@ -184,11 +174,7 @@ export class HabitTrackerComponent {
 
   constructor() {
     effect(() => {
-      const data: HabitTrackerData = {
-        habits: this.habits(),
-        checks: this.checksByMonth(),
-      };
-      localStorage.setItem(this.storageKey, JSON.stringify(data));
+      localStorage.setItem(this.storageKey, JSON.stringify(this.checksByMonth()));
     });
     effect(() => {
       localStorage.setItem(this.showWeekdaysKey, JSON.stringify(this.showWeekdays()));
@@ -244,24 +230,37 @@ export class HabitTrackerComponent {
     this.diaryOverlayService.open(this.dateKeyForDay(day));
   }
 
+  hasTopicEntry(habitId: string, day: number): boolean {
+    return this.diaryService.hasTopicEntry(this.dateKeyForDay(day), habitId);
+  }
+
+  openTopicEntry(habitId: string, day: number) {
+    const habit = this.habitService.getHabit(habitId);
+    this.diaryOverlayService.open(this.dateKeyForDay(day), {
+      habitId,
+      habitName: habit?.name ?? '',
+    });
+  }
+
   toggleShowWeekdays() {
     this.showWeekdays.update((v) => !v);
   }
 
-  private loadData(): HabitTrackerData {
+  private loadChecks(): ChecksByMonth {
     const raw = localStorage.getItem(this.storageKey);
     if (!raw) {
-      return { habits: [], checks: {} };
+      return {};
     }
     try {
-      const parsed = JSON.parse(raw) as HabitTrackerData;
-      const habits = (parsed.habits ?? []).map((h) => ({
-        ...h,
-        color: h.color ?? DEFAULT_HABIT_COLOR,
-      }));
-      return { habits, checks: parsed.checks ?? {} };
+      const parsed = JSON.parse(raw);
+      // Older versions stored `{habits, checks}` in this key; habits now
+      // live in HabitService, so only the checks portion is read from there.
+      if (parsed && typeof parsed === 'object' && 'checks' in parsed) {
+        return parsed.checks ?? {};
+      }
+      return (parsed as ChecksByMonth) ?? {};
     } catch {
-      return { habits: [], checks: {} };
+      return {};
     }
   }
 
@@ -288,20 +287,17 @@ export class HabitTrackerComponent {
     if (!name) {
       return;
     }
-    const habit: Habit = { id: crypto.randomUUID(), name, color: this.newHabitColor() };
-    this.habits.update((habits) => [...habits, habit]);
+    this.habitService.add(name, this.newHabitColor());
     this.newHabitName = '';
     this.newHabitColor.set(DEFAULT_HABIT_COLOR);
   }
 
   updateHabitColor(habitId: string, color: string) {
-    this.habits.update((habits) =>
-      habits.map((h) => (h.id === habitId ? { ...h, color } : h)),
-    );
+    this.habitService.updateColor(habitId, color);
   }
 
   removeHabit(habitId: string) {
-    this.habits.update((habits) => habits.filter((h) => h.id !== habitId));
+    this.habitService.remove(habitId);
     this.checksByMonth.update((monthChecks) =>
       Object.fromEntries(
         Object.entries(monthChecks).map(([month, checks]) => {
@@ -310,6 +306,7 @@ export class HabitTrackerComponent {
         }),
       ),
     );
+    this.diaryService.removeHabitTopics(habitId);
   }
 
   toggleEditMode() {
@@ -351,9 +348,7 @@ export class HabitTrackerComponent {
   renameHabit(habitId: string, newName: string) {
     const name = newName.trim();
     if (name) {
-      this.habits.update((habits) =>
-        habits.map((h) => (h.id === habitId ? { ...h, name } : h)),
-      );
+      this.habitService.rename(habitId, name);
     }
   }
 }
