@@ -6,6 +6,7 @@ import { DiaryService, toDateKey } from '../../services/diary.service';
 import { DiaryOverlayService } from '../../services/diary-overlay.service';
 import { HabitService } from '../../services/habit.service';
 import { ProfileService } from '../../services/profile.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 
 type ChecksByMonth = Record<string, Record<string, boolean[]>>;
 
@@ -42,6 +43,7 @@ export class HabitTrackerComponent {
   private readonly diaryOverlayService = inject(DiaryOverlayService);
   private readonly habitService = inject(HabitService);
   private readonly profile = inject(ProfileService);
+  private readonly confirmDialogService = inject(ConfirmDialogService);
 
   // Captured once. Switching profiles reloads the page, so these keys never
   // change during a session; keeping them reactive would make the save
@@ -272,14 +274,31 @@ export class HabitTrackerComponent {
     return this.checksForHabit(habitId)[day - 1] ?? false;
   }
 
-  toggleCheck(habitId: string, day: number) {
+  private setChecked(habitId: string, day: number, value: boolean) {
     const key = this.monthKey();
     const habitChecks = [...this.checksForHabit(habitId)];
-    habitChecks[day - 1] = !habitChecks[day - 1];
+    habitChecks[day - 1] = value;
     this.checksByMonth.update((monthChecks) => ({
       ...monthChecks,
       [key]: { ...monthChecks[key], [habitId]: habitChecks },
     }));
+  }
+
+  async toggleCheck(habitId: string, day: number) {
+    const wasChecked = this.isChecked(habitId, day);
+    if (wasChecked) {
+      const dateKey = this.dateKeyForDay(day);
+      if (this.diaryService.hasTopicEntry(dateKey, habitId)) {
+        const confirmed = await this.confirmDialogService.confirm(
+          'Zu diesem Tag gibt es einen Eintrag. Soll dieser beim Entfernen des Häkchens ebenfalls gelöscht werden?',
+        );
+        if (!confirmed) {
+          return;
+        }
+        this.diaryService.saveTopicEntry(dateKey, habitId, '');
+      }
+    }
+    this.setChecked(habitId, day, !wasChecked);
   }
 
   addHabit() {
