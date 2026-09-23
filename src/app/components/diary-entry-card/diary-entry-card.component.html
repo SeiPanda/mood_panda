@@ -1,7 +1,7 @@
 <div class="entry-card-header">
   <div class="entry-card-main">
     <div class="entry-date">{{ formattedDate() }}</div>
-    <div class="entry-title">{{ entry().title || '(Ohne Titel)' }}</div>
+    <div class="entry-title">{{ entry().title }}</div>
     @if (topicTags().length > 0) {
       <div class="entry-tags">
         @for (tag of topicTags(); track tag.id) {
