@@ -3,6 +3,7 @@ import {
   ElementRef,
   afterRenderEffect,
   computed,
+  inject,
   input,
   output,
   signal,
@@ -10,6 +11,7 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DiaryEntry } from '../../services/diary.service';
+import { Habit, HabitService } from '../../services/habit.service';
 
 @Component({
   selector: 'li[app-diary-entry-card]',
@@ -19,7 +21,7 @@ import { DiaryEntry } from '../../services/diary.service';
   host: {
     class: 'entry-card',
     '[class.expanded]': 'expanded()',
-    '[class.can-expand]': 'canExpand()',
+    '[class.can-expand]': 'hasMore()',
     '(click)': 'onCardClick()',
   },
 })
@@ -29,9 +31,32 @@ export class DiaryEntryCardComponent {
 
   readonly toggleExpand = output<void>();
   readonly edit = output<void>();
+  readonly editTopic = output<{ date: string; habitId: string; habitName: string }>();
+
+  private readonly habitService = inject(HabitService);
 
   private readonly probeEl = viewChild<ElementRef<HTMLDivElement>>('probeEl');
   protected readonly canExpand = signal(false);
+
+  protected readonly topicTags = computed(() => {
+    const topics = this.entry().topics ?? {};
+    return Object.entries(topics)
+      .filter(([, text]) => !!text)
+      .map(([habitId]) => this.habitService.getHabit(habitId))
+      .filter((h): h is Habit => !!h);
+  });
+
+  // Full topic notes (name + text), shown once the card is expanded.
+  protected readonly topicNotes = computed(() => {
+    const topics = this.entry().topics ?? {};
+    return Object.entries(topics)
+      .map(([habitId, text]) => ({ habitId, text, habit: this.habitService.getHabit(habitId) }))
+      .filter((t): t is { habitId: string; text: string; habit: Habit } => !!t.text && !!t.habit);
+  });
+
+  // Topic-only entries (no main text) can still be expanded to reveal their
+  // notes, so expandability isn't solely driven by the text overflowing.
+  protected readonly hasMore = computed(() => this.canExpand() || this.topicNotes().length > 0);
 
   protected readonly formattedDate = computed(() => {
     const date = new Date(`${this.entry().date}T00:00:00`);
@@ -84,8 +109,13 @@ export class DiaryEntryCardComponent {
     this.toggleExpand.emit();
   }
 
+  protected onEditTopic(event: Event, habitId: string, habitName: string) {
+    event.stopPropagation();
+    this.editTopic.emit({ date: this.entry().date, habitId, habitName });
+  }
+
   protected onCardClick() {
-    if (this.canExpand() || this.expanded()) {
+    if (this.hasMore() || this.expanded()) {
       this.toggleExpand.emit();
     }
   }

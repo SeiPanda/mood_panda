@@ -1,0 +1,17 @@
+@if (isOpen()) {
+  <div class="confirm-overlay-backdrop" (click)="cancel()">
+    <div class="confirm-overlay-panel" (click)="$event.stopPropagation()">
+      <div class="confirm-overlay-message">{{ request()?.message }}</div>
+
+      <div class="confirm-overlay-actions">
+        <button type="button" class="text-btn cancel-btn" (click)="cancel()">
+          {{ request()?.cancelLabel }}
+        </button>
+        <button type="button" class="text-btn confirm-btn" (click)="confirm()">
+          <mat-icon>delete</mat-icon>
+          {{ request()?.confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
