@@ -178,4 +178,11 @@ export class DiaryComponent {
   editEntry(dateKey: string) {
     this.overlayService.open(dateKey);
   }
+
+  editTopic(payload: { date: string; habitId: string; habitName: string }) {
+    this.overlayService.open(payload.date, {
+      habitId: payload.habitId,
+      habitName: payload.habitName,
+    });
+  }
 }

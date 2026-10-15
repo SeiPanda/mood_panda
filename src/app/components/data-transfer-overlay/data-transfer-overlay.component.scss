@@ -1,0 +1,103 @@
+.profile-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 16px;
+}
+
+.profile-overlay-panel {
+  background: var(--surface, #fff);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-overlay-title {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.field-label {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--page-background);
+  cursor: pointer;
+
+  input {
+    accent-color: var(--primary);
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.category-empty {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  padding: 8px 10px;
+}
+
+.import-warning {
+  color: var(--secondary);
+  font-size: 0.85rem;
+}
+
+.profile-overlay-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  mat-icon {
+    color: #fff !important;
+  }
+
+  &.close-btn {
+    background: var(--secondary);
+  }
+
+  &.save-btn {
+    background: var(--primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}

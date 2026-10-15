@@ -1,0 +1,65 @@
+.confirm-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 16px;
+}
+
+.confirm-overlay-panel {
+  background: var(--surface, #fff);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.confirm-overlay-message {
+  color: var(--primary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.confirm-overlay-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.cancel-btn {
+  background: var(--page-background);
+  color: var(--primary);
+}
+
+.confirm-btn {
+  background: var(--secondary);
+  color: #fff;
+
+  mat-icon {
+    color: #fff !important;
+  }
+}

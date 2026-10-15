@@ -130,6 +130,7 @@
             [expanded]="expandedDate() === entry.date"
             (toggleExpand)="toggleExpand(entry.date)"
             (edit)="editEntry(entry.date)"
+            (editTopic)="editTopic($event)"
           ></li>
         }
       </ul>

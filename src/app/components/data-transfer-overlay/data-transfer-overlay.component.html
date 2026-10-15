@@ -1,0 +1,48 @@
+@if (isOpen()) {
+  <div class="profile-overlay-backdrop" (click)="close()">
+    <div class="profile-overlay-panel" (click)="$event.stopPropagation()">
+      <div class="profile-overlay-title">{{ title() }}</div>
+
+      <div class="field-label">
+        {{ isImport() ? 'Was soll importiert werden?' : 'Was soll exportiert werden?' }}
+      </div>
+      <div class="category-list">
+        @for (category of categories(); track category.id) {
+          <label class="category-item">
+            <input
+              type="checkbox"
+              [checked]="selected[category.id]"
+              (change)="toggle(category.id)"
+            />
+            <span>{{ category.label }}</span>
+          </label>
+        } @empty {
+          <div class="category-empty">Diese Datei enthält keine bekannten Daten.</div>
+        }
+      </div>
+
+      @if (isImport()) {
+        <div class="import-warning">
+          Die ausgewählten Daten überschreiben die aktuellen Daten dieses Profils.
+        </div>
+      }
+
+      <div class="profile-overlay-actions">
+        <button type="button" class="icon-btn close-btn" (click)="close()" title="Abbrechen">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-btn save-btn"
+          (click)="confirm()"
+          [disabled]="!hasSelection"
+          [title]="isImport() ? 'Importieren' : 'Exportieren'"
+        >
+          <mat-icon fontSet="material-symbols-outlined">{{
+            isImport() ? 'upload' : 'download'
+          }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -51,8 +51,33 @@
             <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
             <span class="settings-menu-item-text">Profil bearbeiten</span>
           </button>
+
+          <div class="settings-menu-divider"></div>
+
+          <button type="button" class="settings-menu-item" role="menuitem" (click)="exportData()">
+            <mat-icon fontSet="material-symbols-outlined">download</mat-icon>
+            <span class="settings-menu-item-text">Daten exportieren</span>
+          </button>
+
+          <button
+            type="button"
+            class="settings-menu-item"
+            role="menuitem"
+            (click)="triggerImport()"
+          >
+            <mat-icon fontSet="material-symbols-outlined">upload</mat-icon>
+            <span class="settings-menu-item-text">Daten importieren</span>
+          </button>
         </div>
       }
     </div>
   </nav>
+
+  <input
+    #importInput
+    type="file"
+    accept="application/json"
+    hidden
+    (change)="onImportFileSelected($event)"
+  />
 </div>
