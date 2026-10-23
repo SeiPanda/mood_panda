@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.empty {
+  fill: var(--mood-none, #d3d4da);
+}
+
+.eye {
+  fill: #2a2a2e;
+}
+
+.mouth {
+  fill: none;
+  stroke: #2a2a2e;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+
+  &.filled {
+    fill: #2a2a2e;
+    stroke: none;
+  }
+}
+
+.tear {
+  fill: #bcdffb;
+}

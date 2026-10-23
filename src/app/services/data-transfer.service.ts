@@ -19,6 +19,7 @@ export const DATA_CATEGORIES: DataCategory[] = [
   { id: 'diary', label: 'Tagebuch', keys: ['diary-entries', 'diary-extra-periods'] },
   { id: 'habits', label: 'Habits', keys: ['habit-tracker-habits'] },
   { id: 'habit-checks', label: 'Habit-Tracking (Häkchen)', keys: ['habit-tracker-data'] },
+  { id: 'mood', label: 'Mood Tracker', keys: ['mood-entries'] },
 ];
 
 export interface ExportPayload {

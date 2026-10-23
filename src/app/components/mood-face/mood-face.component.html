@@ -1,0 +1,33 @@
+<svg
+  viewBox="0 0 100 100"
+  role="img"
+  [attr.aria-label]="moodLevel()?.label ?? 'Keine Stimmung erfasst'"
+>
+  @if (moodLevel(); as m) {
+    <circle class="head" cx="50" cy="50" r="40" [attr.fill]="m.color" />
+
+    @switch (level()) {
+      @case (0) {
+        <path class="mouth filled" d="M32,58 Q50,82 68,58 Q50,70 32,58 Z" />
+      }
+      @case (1) {
+        <path class="mouth" d="M33,59 Q50,76 67,59" />
+      }
+      @case (2) {
+        <path class="mouth" d="M38,65 L62,65" />
+      }
+      @case (3) {
+        <path class="mouth" d="M33,71 Q50,57 67,71" />
+      }
+      @case (4) {
+        <path class="mouth" d="M33,71 Q50,57 67,71" />
+        <path class="tear" d="M72,48 Q78,57 72,64 Q66,57 72,48 Z" />
+      }
+    }
+
+    <ellipse class="eye" cx="38" cy="46" rx="3.8" ry="4.8" />
+    <ellipse class="eye" cx="62" cy="46" rx="3.8" ry="4.8" />
+  } @else {
+    <circle class="head empty" cx="50" cy="50" r="40" />
+  }
+</svg>

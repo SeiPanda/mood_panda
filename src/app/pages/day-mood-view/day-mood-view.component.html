@@ -1,0 +1,62 @@
+<div class="page">
+  <div class="day-header">
+    <button type="button" class="icon-btn" (click)="goBack()" aria-label="Zurück zum Kalender">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="day-title">{{ dateLabel() }}</span>
+    <span class="header-spacer"></span>
+  </div>
+
+  <div class="mood-card">
+    <span class="mood-question">Wie war dein Tag?</span>
+    <div class="mood-options">
+      @for (level of moodLevels; track level.id) {
+        <button
+          type="button"
+          class="mood-option"
+          [class.selected]="mood() === level.id"
+          [attr.aria-label]="level.label"
+          [attr.aria-pressed]="mood() === level.id"
+          (click)="selectMood(level.id)"
+        >
+          <app-mood-face [level]="level.id" />
+        </button>
+      }
+    </div>
+  </div>
+
+  @for (category of categories; track category.id) {
+    <div class="category-card">
+      <button
+        type="button"
+        class="category-header"
+        (click)="toggleCategory(category.id)"
+        [attr.aria-expanded]="isExpanded(category.id)"
+      >
+        <span>{{ category.label }}</span>
+        <mat-icon>{{ isExpanded(category.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+
+      @if (isExpanded(category.id)) {
+        <div class="category-items">
+          @for (item of category.items; track item.id) {
+            <button
+              type="button"
+              class="category-item"
+              [class.selected]="isSelected(category.id, item.id)"
+              [attr.aria-pressed]="isSelected(category.id, item.id)"
+              (click)="toggleItem(category.id, item.id)"
+            >
+              <span class="category-item-icon">
+                <mat-icon>{{ item.icon }}</mat-icon>
+              </span>
+              <span class="category-item-label">{{ item.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <button type="button" class="done-btn" (click)="goBack()">Fertig</button>
+</div>

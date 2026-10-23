@@ -1,3 +1,113 @@
 <div class="page">
   <h1>Mood Tracker</h1>
+
+  <div class="month-nav">
+    <button type="button" class="month-nav-btn" (click)="prevMonth()" aria-label="Vorheriger Monat">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="month-label">{{ monthLabel() }}</span>
+    <button
+      type="button"
+      class="month-nav-btn"
+      (click)="nextMonth()"
+      [disabled]="isCurrentMonth()"
+      aria-label="Nächster Monat"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    @if (!isCurrentMonth()) {
+      <button type="button" class="today-btn" (click)="goToCurrentMonth()">
+        <mat-icon>today</mat-icon>
+        Aktueller Monat
+      </button>
+    }
+  </div>
+
+  <div class="calendar-card">
+    <div class="weekday-row">
+      @for (label of weekdayLabels; track label) {
+        <span class="weekday">{{ label }}</span>
+      }
+    </div>
+
+    <div class="calendar-grid">
+      @for (blank of leadingBlanks(); track $index) {
+        <div class="day-cell blank"></div>
+      }
+      @for (cell of cells(); track cell.dateKey) {
+        <button
+          type="button"
+          class="day-cell"
+          [class.today]="cell.isToday"
+          (click)="openDay(cell.dateKey)"
+          [attr.aria-label]="'Tag ' + cell.day"
+        >
+          <span class="day-circle">
+            <app-mood-face [level]="moodFor(cell.dateKey)" />
+          </span>
+          <span class="day-number">{{ cell.day }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (overviewDateKey(); as dateKey) {
+    <div class="overview-backdrop" (click)="closeOverview()"></div>
+    <div class="overview-card" role="dialog" aria-label="Tagesübersicht">
+      <div class="overview-header">
+        <app-mood-face [level]="overviewMood()" class="overview-face" />
+        <span class="overview-date-label">{{ overviewDateLabel() }}</span>
+        <div class="overview-actions">
+          <button mat-icon-button (click)="editOverviewDay()" aria-label="Tag bearbeiten">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="deleteOverviewDay()" aria-label="Tag löschen">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      @if (overviewItems().length) {
+        <div class="overview-items">
+          @for (item of overviewItems(); track item.id) {
+            <span class="overview-item" [attr.aria-label]="item.label">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </span>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (isCurrentMonth()) {
+    @if (fastSelectOpen()) {
+      <div class="fast-select-backdrop" (click)="closeFastSelect()"></div>
+      <div class="fast-select-popover" role="dialog" aria-label="Schnellauswahl Stimmung heute">
+        <span class="fast-select-title">Wie war dein Tag?</span>
+        <div class="fast-select-options">
+          @for (level of moodLevels; track level.id) {
+            <button
+              type="button"
+              class="fast-select-option"
+              [class.selected]="todayMood() === level.id"
+              [attr.aria-label]="level.label"
+              [attr.aria-pressed]="todayMood() === level.id"
+              (click)="selectTodayMood(level.id)"
+            >
+              <app-mood-face [level]="level.id" />
+            </button>
+          }
+        </div>
+      </div>
+    }
+    <button
+      type="button"
+      class="fast-select-fab"
+      [class.open]="fastSelectOpen()"
+      (click)="toggleFastSelect()"
+      aria-label="Stimmung für heute schnell erfassen"
+    >
+      <app-mood-face [level]="todayMood()" />
+    </button>
+  }
 </div>
